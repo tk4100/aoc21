@@ -1,0 +1,2 @@
+1368 - FAIL, referenced the first loop var "line" in the second, derp.  Shoulda been "window"
+1858

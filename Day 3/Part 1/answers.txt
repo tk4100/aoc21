@@ -1,0 +1,2 @@
+168 - FAIL, matched the bit length of the example, not the actual data.  Derp.
+3009600

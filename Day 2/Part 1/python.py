@@ -1,0 +1,19 @@
+import sys
+
+with open(sys.argv[1], "r") as inh:
+    inputs = inh.readlines()
+	
+coords = [0, 0]
+
+for input in inputs:
+    cmd, count = input.split()
+    count = int(count)
+
+    if cmd == "up":
+        coords[1] -= count
+    if cmd == "down":
+        coords[1] += count
+    if cmd == "forward":
+        coords[0] += count
+        
+print("Coords are {},{}, giving a puzzle answer of {}.".format(coords[0], coords[1], coords[0] * coords[1]))
