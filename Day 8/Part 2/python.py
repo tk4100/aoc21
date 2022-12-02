@@ -1,69 +1,85 @@
-import sys
-
-class SevenSegFigurer():
+class Digit():
     def __init__(self):
-        self.a = None
-        self.b = None
-        self.c = None
-        self.d = None
-        self.e = None
-        self.f = None
-        self.g = None
-        
-        self.seen_one = False
-        self.seen_four = False
-        self.seen_seven = False
-    
-    def feed(self, digit):
-        # one
-        if len(digit) == 2 and not self.seen_one:
-            self.c = [ x for x in digit ]
-            self.f = [ x for x in digit ]
-        # four
-        if len(digit) == 4 and not self.seen_four:
-            self.b = [ x for x in digit ]
-            self.c = [ x for x in digit ]
-            self.d = [ x for x in digit ]
-            self.f = [ x for x in digit ]
-        # seven
-        if len(digit) == 3 and not self.seen_seven:
-            self.a = [ x for x in digit ]
-            self.c = [ x for x in digit ]
-            self.f = [ x for x in digit ]
-            
-        # zero, six, or nine, a, b, f, and g are always present
-        if len(digit) == 6:
-            # solidify segments c and f
-            for seg in self.f:
-                if seg in digit:
-                    self.f = seg
-                    self.c.remove(seg)
-
-            
-        # two, three, or five
-        if len(digit) == 5:
-            pass
- 
-            
-        
-    def decode(self, digit):
         pass
 
-with open(sys.argv[1], 'r') as inh:
-    raw = inh.readlines()
+    def AND(self, target, scope):
+        out = [ x for x in target ]
+        for segment in target:
+            if segment not in scope:
+                del(out[out.index(segment)])
+        return(out)
 
-total_count = 0
-for line in raw:
-    rando, output = line.split(' | ')
-    random_bits = rando.split()
-    output_bits = output.split()
-    
-    count = 0
-    for bit in output_bits:
-        if len(bit) == 2 or len(bit) == 3 or len(bit) == 4 or len(bit) == 7:
-            count += 1
+    def getSig(self, signal):
+        sig = 0
+        sig += (100 * len(self.AND(self.one, signal)))
+        sig += (10 * len(self.AND(self.four, signal)))
+        sig += len(self.AND(self.seven, signal))
+        return(sig)
+
+    # takes a string, like "dab"
+    def learn(self, signal):
+        # One
+        if len(signal) == 2:
+            self.one = [ x for x in signal ]
+        # Four
+        elif len(signal) == 4:
+            self.four = [ x for x in signal ]
+        # Seven
+        elif len(signal) == 3:
+            self.seven = [ x for x in signal ]
+        # Eight doesn't help us, since it lights all segments
+
+    def match(self, signal):
+        # count how many matches there are between our known numbers and this
+        # signal. With that and the count of segments lit we can uniquely ID
+        # the number
+        sig = self.getSig(signal)
+
+        # One, Four, Seven and Eight
+        if len(signal) == 2:
+            return(1)
+        elif len(signal) == 4:
+            return(4)
+        elif len(signal) == 3:
+            return(7)
+        elif len(signal) == 7:
+            return(8)
+
+        # Two, Three, and Five
+        if len(signal) == 5:
+            if sig == 122:
+                return(2)
+            elif sig == 233:
+                return(3)
+            elif sig == 132:
+                return(5)
             
-    print("Line {}".format(count))
-    total_count += count
+        # Zero, Six and Nine
+        elif len(signal) == 6:
+            if sig == 233:
+                return(0)
+            elif sig == 132:
+                return(6)
+            elif sig == 243:
+                return(9)
 
-print("Total: {}".format(total_count))
+
+#####
+
+with open("tk_input.txt") as fh:
+    total = 0
+    for line in fh:
+        bits = line.split("|")
+        signals = bits[0].split()
+        code = bits[1].split()
+
+        decoder = Digit()
+        for signal in signals:
+            decoder.learn(signal)
+
+        digit_string = ''
+        for digit in code:
+            digit_string += str(decoder.match(digit))
+        total += int(digit_string)
+
+print("Total is: {}".format(total))
